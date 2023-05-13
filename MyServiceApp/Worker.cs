@@ -17,6 +17,17 @@ public class Worker : BackgroundService
         string response = await service.InvokeApiAsync("/posts");
         _logger.LogInformation("Response recieved to worker: {response}", response);
 
+        //invoke get token
+        try
+        {
+            string token = await service.GetAccessTokenAsync();
+            _logger.LogInformation("Token recieved to worker: {token}", token);
+        }
+        catch (System.Exception ex)
+        {
+            // Break the execution if the token is not recieved
+            throw;
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
