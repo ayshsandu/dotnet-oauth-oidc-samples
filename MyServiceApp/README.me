@@ -1,0 +1,53 @@
+Certainly! Here's an improved version of the README with the additional details:
+
+# Secure an API with Choreo and Asgardeo and access it via a .NET Core service
+
+This project demonstrates how to secure an API using Choreo as a REST API proxy and authenticate requests using Asgardeo. It includes a .NET Core service that invokes the secured API by obtaining an access token over the client_credentials grant flow from Asgardeo.
+
+## Prerequisites
+
+Before getting started, make sure you have the following:
+
+- A Choreo account: Sign up for a free account at [Choreo](https://www.choreo.dev).
+- An Asgardeo account: Create an account at [Asgardeo](https://asgardeo.io).
+- .NET Core SDK: Install the .NET Core SDK from [here](https://dotnet.microsoft.com/download).
+
+## Steps
+
+Follow these steps to set up and run the project:
+
+1. Expose API in Choreo as a REST API proxy:
+   - Log in to your Choreo account and navigate to the Choreo Dashboard.
+   - Create a new API by providing the necessary details and configure it as a REST API proxy.
+   - Add the necessary endpoints and configure the required security measures, such as OAuth 2.0 authorization.
+    Note: I have used https://jsonplaceholder.typicode.com as the API for the demo purpose.
+
+2. Publish the API:
+   - Once your API is configured, publish it to make it accessible.
+
+3. Create an app from the Choreo Developer Portal and subscribe:
+   - In the Choreo Developer Portal, create a new application and provide the necessary details.
+   - Subscribe to the API you published earlier to associate the application with the API.
+
+4. Set up the .NET Core service:
+   - Clone this repository or download the source code.
+   - Open the solution in a suitable IDE, such as Visual Studio or Visual Studio Code.
+
+5. Configure the .NET Core service:
+   - Open the `appsettings.json` file and update the following configuration values:
+     - `ResourceAPI:ChoreoAPIEndpoint`: Set it to the endpoint URL of your Choreo API (e.g., "https://api.choreo.dev/your-api").
+     - `IdentityProvider:ClientId`: Set it to the Client ID of your application.
+     - `IdentityProvider:ClientSecret`: Set it to the Client Secret of your application.
+     - `IdentityProvider:TokenEndpoint`: Set it to the token endpoint URL of Asgardeo.
+     Note: All the configurations can be found under the application from Choreo Developer portal
+
+6. Build and run the .NET Core service and Observe the logs:
+   - Use the command line or the IDE's build and run functionality to compile and execute the .NET Core service.
+   - First The service will invoke the Choreo API, which will fail due to the lack of necessary authorization headers.
+
+7. Obtain a token from Asgardeo and invoke the API:
+   - The .NET Core service will automatically obtain an access token from Asgardeo over the client_credentials grant flow.
+   - The obtained token will be included as a bearer token in the subsequent API invocations, allowing successful authentication and access to the Choreo API.
+## Contributing
+
+Contributions are welcome! If you find any issues or have suggestions for improvement, please feel free to submit a pull request or open an issue in the repository.
