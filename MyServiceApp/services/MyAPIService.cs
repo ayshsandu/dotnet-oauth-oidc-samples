@@ -7,12 +7,19 @@ public class MyService
     private readonly IConfiguration _configuration;
 
     //base url for the API
-    private readonly string _base_url = "https://jsonplaceholder.typicode.com";
+    private readonly string resourceAPIBaseURL;
+
+    // = "https://jsonplaceholder.typicode.com";
 
     public MyService(ILogger logger)
     {
         _logger = logger;
         _httpClient = new HttpClient();
+
+        _configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+        resourceAPIBaseURL = _configuration["ResourceAPI:BaseURL"];
     }
 
     /*
@@ -24,7 +31,8 @@ public class MyService
 
         try
         {
-            string apiUrl = _base_url + endpoint;
+            string apiUrl = resourceAPIBaseURL + endpoint;
+            // + endpoint;
             HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
 
             if (!response.IsSuccessStatusCode)
