@@ -1,6 +1,7 @@
 namespace MyServiceApp.services;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Headers;
 
 public class MyService
 {
@@ -8,41 +9,30 @@ public class MyService
     private readonly ILogger _logger;
     private readonly IConfiguration _configuration;
 
-    //base url for the API
-    private readonly string resourceAPIBaseURL;
-
     // KeyManager configurations
     string tokenEndpoint;
     string clientId;
     string clientSecret;
 
-    public MyService(ILogger logger)
+    public MyService(ILogger logger, IConfiguration configuration)
     {
         _logger = logger;
         _httpClient = new HttpClient();
+        _configuration = configuration;
 
-        _configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .Build();
-        resourceAPIBaseURL = _configuration["ResourceAPI:BaseURL"];
-
-        clientId = _configuration["IdentityProvider:ClientId"];
-        clientSecret = _configuration["IdentityProvider:ClientSecret"];
-        tokenEndpoint = _configuration["IdentityProvider:TokenEndpoint"];
+        clientId = _configuration["IdentityProvider:ClientId"] ?? "";
+        clientSecret = _configuration["IdentityProvider:ClientSecret"] ?? "";
+        tokenEndpoint = _configuration["IdentityProvider:TokenEndpoint"] ?? "";
         
     }
 
     /*
     * Method to invoke a API endpoint
     */
-    public async Task<string> InvokeApiAsync(string endpoint)
+    public async Task<string> InvokeApiAsync(string apiUrl)
     {
-        //Calling the API endpoint
-
         try
         {
-            string apiUrl = resourceAPIBaseURL + endpoint;
-            // + endpoint;
             HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
 
             if (!response.IsSuccessStatusCode)
@@ -108,6 +98,29 @@ public class MyService
         catch (System.Exception ex)
         {
             throw new Exception($"Something went wrong when obtaining the token: {ex.Message}");
+        }
+    }
+
+    /** Invoke ChoreoAPIs */
+    public async Task<string> InvokeSecuredApiAsync(string apiUrl)
+    {
+        //Calling the API endpoint
+
+        try
+        {
+            string token = await GetAccessTokenAsync();
+            // Attach bearer header to the http request
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                token
+            );
+
+            return await InvokeApiAsync(apiUrl);
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogError("Error: {error}", ex.Message);
+            throw new Exception($"Something went wrong when invoking the ChoreoAPI: {ex.Message}");
         }
     }
 }
