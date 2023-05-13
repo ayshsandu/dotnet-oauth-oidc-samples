@@ -1,4 +1,5 @@
 namespace MyServiceApp;
+using MyServiceApp.services;
 
 public class Worker : BackgroundService
 {
@@ -11,6 +12,12 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Invoke a service to call an API endpoint
+        MyService service = new MyService(_logger);
+        string response = await service.InvokeApiAsync("/posts");
+        _logger.LogInformation("Response recieved to worker: {response}", response);
+
+
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
